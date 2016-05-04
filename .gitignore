@@ -147,3 +147,4 @@ ENV/
 *.txt
 *.conll
 *.pkl
+*/doc/
