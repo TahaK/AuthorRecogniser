@@ -4,7 +4,7 @@ import viterbi
 
 def main(argv):
     input_file = open(argv[0], 'r')
-    output_file = open(argv[1],'w')
+    output_file = open(argv[1], 'wb')
     sentences = input_file.read().split("\n")
     v = viterbi.Viterbi()
 
@@ -12,10 +12,12 @@ def main(argv):
         words = sentence.split()
         tags = v.decode(words)
 
-        # for word, tag in zip(words, tags):
-        #    output_file.write(word+"|"+tag+"\\n")
+        for word, tag in zip(words, tags):
+            output_file.write(word+"|"+tag+"\\n")
 
-        output_file.write("\\n")
+        output_file.writelines('')
+
+    output_file.close()
 
 
 if __name__ == "__main__":
