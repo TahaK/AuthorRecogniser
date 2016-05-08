@@ -2,10 +2,35 @@ import sys
 import matplotlib.pyplot as plt
 from sklearn import metrics
 import numpy as np
+import pickle
+
+
+def print_statistics(confusion_matrix):
+    macro_precision_score = calculate_macro_precision(confusion_matrix)
+    macro_recall_score = calculate_macro_recall(confusion_matrix)
+
+    micro_precision_score = calculate_micro_precision(confusion_matrix)
+    micro_recall_score = calculate_micro_recall(confusion_matrix)
+
+    print "precision score - macro : " + str(macro_precision_score)
+    print "recall score - macro : " + str(macro_recall_score)
+    print "f1 score - macro : " + str(calculate_f_score(macro_precision_score, macro_recall_score))
+
+    print "precision score - micro : " + str(micro_precision_score)
+    print "recall score - micro : " + str(micro_recall_score)
+    # print "f1 score - micro : " + str(calculate_f_score(micro_precision_score, micro_recall_score))
+
+
 
 def main(argv):
     output_filename = open(argv[0], 'r')
     test_gold_filename = open(argv[1], 'r')
+
+    fp_1 = open("oowv_count.pkl", "r")
+    oovw = pickle.load(fp_1)
+
+    fp_1 = open("tag_names.pkl", "r")
+    tag_names = pickle.load(fp_1)
 
     gold_words = []
     gold_tags = []
@@ -38,30 +63,23 @@ def main(argv):
     if output_tags.__len__() != gold_tags.__len__():
         print 'Error output tag number does not equal gold tags number'
 
+    print("Percentage of Unknown words : " + str(oovw / len(gold_tags)))
+
     cm = metrics.confusion_matrix(gold_tags, output_tags)
-    macro_precision_score = calculate_macro_precision(cm)
-    macro_recall_score = calculate_macro_recall(cm)
-
-    micro_precision_score = calculate_micro_precision(cm)
-    micro_recall_score = calculate_micro_recall(cm)
-
-    print "precision score - macro : " + str(macro_precision_score)
-    print "recall score - macro : " + str(macro_recall_score)
-    print "f1 score - macro : " + str(calculate_f_score(macro_precision_score, macro_recall_score))
-
-    print "precision score - micro : " + str(micro_precision_score)
-    print "recall score - micro : " + str(micro_recall_score)
-    # print "f1 score - micro : " + str(calculate_f_score(micro_precision_score, micro_recall_score))
+    print("General Statistics")
+    print("----------------------")
+    print_statistics(cm)
+    print("----------------------")
 
     # The rest is just for producing pretty plots :)
     def plot_confusion_matrix(cm, title='Confusion matrix', cmap=plt.cm.Blues):
         plt.imshow(cm, interpolation='nearest', cmap=cmap)
         plt.title(title)
         plt.colorbar()
-        #tick_marks = np.arange(len(authors))
+        tick_marks = np.arange(len(tag_names))
 
-        #plt.xticks(tick_marks, authors, rotation=90, fontsize='small')
-        #plt.yticks(tick_marks, authors, fontsize='small')
+        plt.xticks(tick_marks, tag_names, rotation=90, fontsize='small')
+        plt.yticks(tick_marks, tag_names, fontsize='small')
         plt.tight_layout()
         plt.ylabel('True label')
         plt.xlabel('Predicted label')
@@ -70,12 +88,12 @@ def main(argv):
     # Normalize the confusion matrix by row (i.e by the number of samples
     # in each class)
     cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-    print('Normalized confusion matrix')
-    print(cm_normalized)
+
     plt.figure()
     plot_confusion_matrix(cm_normalized, title='Normalized confusion matrix')
 
     plt.show()
+
 
 def column(matrix, i):
     return [row[i] for row in matrix]

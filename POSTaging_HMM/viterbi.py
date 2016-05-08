@@ -44,23 +44,19 @@ class Viterbi(object):
             self.state_graph.append(tag_name)
 
     def decode(self, observations):
-        #viterbi = np.zeros((len(self.state_graph) + 2, len(observations)))
-        #backpt = np.ones((len(self.state_graph), len(observations)), 'int32') * -1
-
-        #for s in range(0, len(self.state_graph)):
-        #    if observations[0] in self.likelihood:
-        #        viterbi[s, 0] = self.initial_conditions[self.state_graph[s]] * self.likelihood[observations[0]]
-        #    else:
-        #        viterbi[s, 0] = self.initial_conditions[self.state_graph[s]]
-
         viterbi = np.zeros((len(self.state_graph), len(observations)))
-        backpt = np.ones((len(self.state_graph), len(observations)), 'int32') * -1
-
+        backpointer = np.ones((len(self.state_graph), len(observations)), 'int32') * -1
+        oovw = []
         if observations[0] in self.likelihood:
             bs = self.likelihood[observations[0]]
         else:
             # vector pointing to a noun
-            bs = np.array([0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+            if len(self.state_graph) == 13:
+                bs = np.array([0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+            else:
+                bs = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                               0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                               0, 0, 0, 0])
 
         viterbi[:, 0] = np.squeeze(self.initial_conditions * bs)
 
@@ -68,18 +64,24 @@ class Viterbi(object):
             if observations[t] in self.likelihood:
                 bs = self.likelihood[observations[t]]
             else:
+                oovw.append(t)
                 # vector pointing to a noun
-                bs = np.array([[0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
+                if len(self.state_graph) == 13:
+                    bs = np.array([[0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
+                else:
+                    bs = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                   0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                   0, 0, 0, 0]])
 
             # a = (viterbi[s, t - 1, None].dot(bs(s, 1))).max(0)
             viterbi[:, t] = (viterbi[:, t-1, None].dot(bs) * self.transition_table).max(0)
-            backpt[:, t] = (np.tile(viterbi[:, t-1, None], [1, len(self.state_graph)]) * self.transition_table).argmax(0)
+            backpointer[:, t] = (np.tile(viterbi[:, t-1, None], [1, len(self.state_graph)]) * self.transition_table).argmax(0)
 
         tokens = [viterbi[:, -1].argmax()]
         for i in xrange(len(observations)-1, 0, -1):
-            tokens.append(backpt[tokens[-1], i])
+            tokens.append(backpointer[tokens[-1], i])
         tokens = tokens[::-1]
         tags = []
         for token in tokens:
             tags.append(self.tags[token])
-        return tags
+        return tags, len(oovw), self.tags
