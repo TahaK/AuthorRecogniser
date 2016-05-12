@@ -192,11 +192,11 @@ def calculate_f_score(precision, recall):
 def main(argv):
     training_dict = get_doc_paths_dic_by_writer(argv[0])
     test_dict_by_writer = get_doc_paths_dic_by_writer(argv[1])
-    if argv[2]=="-ext":
+
+    if argv.__contains__("-ext"):
         extra_feature = True
     else:
         extra_feature = False
-
     alfa = 0.0001
 
     print "Training ."
@@ -226,6 +226,10 @@ def main(argv):
 
     micro_precision_score = calculate_micro_precision(cm)
     micro_recall_score = calculate_micro_recall(cm)
+    if extra_feature:
+        print "Using word length as extra feature"
+    else:
+        print "Bag of words without extra features"
 
     print "precision score - macro : " + str(macro_precision_score)
     print "recall score - macro : " + str(macro_recall_score)
