@@ -30,28 +30,28 @@ def main(argv):
         test_count = 0
 
         # Determining sample files
-        docs = os.listdir(base + writer)
+        docs = os.listdir(os.path.join(base, writer))
         trainingSamples = random.sample(docs, int(len(docs) * 0.6))
         for sample in trainingSamples:
             docs.remove(sample)
 
         # Copying training and test files
 
-        trainingBase = argv[1] + "/" + writer
+        trainingBase = os.path.join(argv[1], writer)
         os.makedirs(trainingBase)
 
         for sample in trainingSamples:
-            src = base + writer + "/" + sample
-            dst = trainingBase + "/" + sample
+            src = os.path.join(base, writer, sample)
+            dst = os.path.join(trainingBase, sample)
             shutil.copyfile(src, dst)
             training_count += 1
 
-        testBase = argv[2] + "/" + writer
+        testBase = os.path.join(argv[2], writer)
         os.makedirs(testBase)
 
         for sample in docs:
-            src = base + writer + "/" + sample
-            dst = testBase + "/" + sample
+            src = os.path.join(base, writer, sample)
+            dst = os.path.join(testBase, sample)
             shutil.copyfile(src, dst)
             test_count += 1
 
