@@ -29,11 +29,11 @@ def get_doc_paths_dic_by_writer(base):
     dict_by_writer = {}
     for author in authors_:
         # Determining sample files
-        author_path = base + author
+        author_path = os.path.join(base, author)
         docs = os.listdir(author_path)
         dict_by_writer.setdefault(author, [])
         for doc in docs:
-            doc_path = author_path + "/" + doc
+            doc_path = os.path.join(author_path, doc)
             dict_by_writer[author].append(doc_path)
 
     return dict_by_writer
