@@ -192,7 +192,11 @@ def calculate_f_score(precision, recall):
 def main(argv):
     training_dict = get_doc_paths_dic_by_writer(argv[0])
     test_dict_by_writer = get_doc_paths_dic_by_writer(argv[1])
-    extra_feature = True
+    if argv[2]=="-ext":
+        extra_feature = True
+    else:
+        extra_feature = False
+
     alfa = 0.0001
 
     print "Training ."

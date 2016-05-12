@@ -6,8 +6,8 @@ organized into folders according to their classes
 To partition the data to training and test data use the following command
 template
 
-./Partition.py [Path to Dataset] [Tainig Path] [Test Path]
+    ./Partition.py [Path to Dataset] [Training Path] [Test Path] [-ext]
 
-And to run the Auther Recogniser use the following template
+And to run the Author Recogniser use the following template
 
-./AuthorRecogniser.py [Tainig Path] [Test Path]
+    ./AuthorRecogniser.py [Training Path] [Test Path]
